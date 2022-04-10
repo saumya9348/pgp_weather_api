@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Weather In Your City</title>
+	<style type="text/css">
+		*{
+			padding: 0px;
+			margin: 0px;
+		}
+		.nav{
+			height: 50px;
+			background-color: #aa93ae;
+		}
+		.logo{
+			font-size: 2em;
+			font-family: sans-serif;
+			display: flex;
+			justify-content: center;
+			line-height: 50px;
+			font-weight: 700;
+			color: white;
+		}
+		.weatherView{
+			height: 930px;
+			width: 100%;
+			background-color: yellow;
+			background-image: url('./bg.jpg');
+			background-position: center;
+			background-size: cover;
+
+			
+		}
+		.weather_dispaly{
+			display: flex;
+			justify-content: space-around;
+			padding-top: 100px;
+		}
+		.citiesSelect{
+			height: 500px;
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-around;
+			background-color: rgba(0, 0, 0, 0.2);
+			width: 500px;
+			border-radius: 5%;
+
+		}
+		.tempSet{
+			list-style: none;
+
+		}
+		.tempSet >li{
+			font-size: 1.5em;
+			font-weight: 600;
+			padding-bottom: 5px;
+			color: white;
+		}
+		#cities{
+			height: 35px;
+		}
+		#selectedCities{
+			font-size: 2em;
+			font-weight: 900;
+		}
+	</style>
+</head>
+<body>
+<div class="navbar">
+	<div class="nav">
+		<div class="logo">
+			Weather Api By Cities
+		</div>
+	</div>
+	
+	<section class="weatherView">
+		<div class="weather_dispaly">
+			<div class="citiesSelect">
+				<h1 id="selectedCities">No City Selected</h1>
+				<select id="cities">
+					<option>Select Cites</option>
+				</select>	
+			</div>
+			<div class="alltemp citiesSelect">
+				<ul class="tempSet">
+					<li>Weather : <span id='weather'>-</span></li>
+					<li>Tempreature : <span id='temp'>-</span></li>
+					<li>Pressure : <span id='pres'>-</span></li>
+					<li>Wind Spped : <span id='windsp'>-</span></li>
+				</ul>
+			</div>
+		</div>
+	</section>
+	
+</div>
+
+
+<script type="text/javascript">
+	let option={
+		method:'GET',
+		body:{	
+    			"country": "Nigeria",
+    			"state": "Lagos"
+    		}
+	}
+	let city=document.getElementById('cities');
+	async function getCities(){
+		let weatherData= await fetch('https://countriesnow.space/api/v0.1/countries');
+		let data = await weatherData.json();
+		city.innerHTML='';
+		let y= document.createElement('option');
+			y.append("Selet Cities");
+			city.appendChild(y);
+		data.data[96].cities.forEach((data,index)=>{
+			let x= document.createElement('option');
+			x.append(data);
+			x.setAttribute('value',data.toLowerCase());
+			city.appendChild(x);
+		});
+	}
+	getCities();
+	function setWeather(city,weather,temp,pressure,wind) {
+		let selectedCities=document.getElementById('selectedCities');
+		let setweather=document.getElementById('weather');
+		let settemp=document.getElementById('temp');
+		let windsp=document.getElementById('windsp');
+		let pres=document.getElementById('pres');
+		selectedCities.innerHTML='';
+		setweather.innerHTML='';
+		settemp.innerHTML='';
+		windsp.innerHTML='';
+		pres.innerHTML='';
+
+		selectedCities.innerHTML=city;
+		setweather.innerHTML=weather;
+		settemp.innerHTML=temp;
+		windsp.innerHTML=wind;
+		pres.innerHTML=pressure;
+	}
+	async function getWeather(){
+		let weatherData= await (await fetch('https://api.openweathermap.org/data/2.5/weather?q='+city.value+'&appid=09d80a2138b44e777cd7aeccd8466a89&units=metric')).json();
+		// weatherData=await weatherData.json();
+		if(weatherData.cod==404){
+		console.log(weatherData);
+		setWeather(city.value.toUpperCase(),"No data","No data","No data","No data")
+		}else{
+	setWeather(weatherData.name,weatherData.weather[0].main,weatherData.main.temp+' Cel',weatherData.main.pressure,weatherData.wind.speed);
+}
+		console.log(city.value);
+		// console.log(weatherData);
+
+	}
+	city.addEventListener('change',getWeather)
+</script>
+</body>
+</html>
